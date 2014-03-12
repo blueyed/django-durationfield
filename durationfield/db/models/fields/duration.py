@@ -32,13 +32,21 @@ class DurationField(six.with_metaclass(models.SubfieldBase, Field)):
         #self.max_digits, self.decimal_places = 20, 6
 
     def get_internal_type(self):
-        return "DurationField"
+        """
+        This gets mapped to the corresponding database type, via
+        `Field.db_parameters` (for migrations in Django 1.7).
+        See https://code.djangoproject.com/ticket/2226.
+        """
+        return "BigIntegerField"
 
     def db_type(self, connection=None):
         """
         Returns the database column data type for this field, for the provided connection.
         Django 1.1.X does not support multiple db's and therefore does not pass in the db
-        connection string. Called by Django only when the framework constructs the table
+        connection string. Called by Django only when the framework constructs the table.
+        With migrations (Django 1.7), this is not called, but `get_internal_type` via
+        `Field.db_parameters`. Keeping this for backwards compatibility.
+        (Also, probably South uses this!)
         """
         return "bigint"
 
